@@ -66,7 +66,7 @@ class WeatherBot
   end
 
   def post_weather_to_slack(text)
-    slack = Slack::Incoming::Webhooks.new(@webhook_url)
+    slack = Slack::Incoming::Webhooks.new(@webhook_url, username: '天気')
     slack.post(text, attachments: @attachments)
   end
 end
