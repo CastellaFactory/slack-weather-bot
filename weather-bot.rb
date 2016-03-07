@@ -3,14 +3,10 @@ require 'open-uri'
 require 'slack/incoming/webhooks'
 
 class WeatherBot
-  @@webhook_url
-  @@attachments
-  @@uri
-
   def initialize
-    @@webhook_url = ENV['WEBHOOK_URL']
-    @@attachments = []
-    @@uri = 'http://weather.livedoor.com/forecast/webservice/json/v1?city=230010'
+    @webhook_url = ENV['WEBHOOK_URL']
+    @attachments = []
+    @uri = 'http://weather.livedoor.com/forecast/webservice/json/v1?city=230010'
   end
 
   def temperature(weather, min_or_max)
@@ -29,7 +25,7 @@ class WeatherBot
     elsif ARGV[0] == 'today'
       append_attachment(today, link)
     elsif ARGV[0] == 'tommorow'
-      @@attachments[0]['text'] = ''
+      @attachments[0]['text'] = ''
       append_attachment(tommorow, link)
     end
   end
@@ -48,11 +44,11 @@ class WeatherBot
       image_url: weather['image']['url'],
       color: '#7CD197'
     }
-    @@attachments.push(attachment)
+    @attachments.push(attachment)
   end
 
   def make_attachments
-    res     = JSON.load(open(@@uri).read)
+    res     = JSON.load(open(@uri).read)
     title   = res['title']
     text    = res['description']['text']
     link    = res['link']
@@ -60,7 +56,7 @@ class WeatherBot
     today = res['forecasts'][0]
     tommorow = res['forecasts'][1]
 
-    @@attachments.push({
+    @attachments.push({
       title: title,
       title_link: link,
       author_name: provider,
@@ -70,8 +66,8 @@ class WeatherBot
   end
 
   def post_weather_to_slack(text)
-    slack = Slack::Incoming::Webhooks.new(@@webhook_url)
-    slack.post(text, attachments: @@attachments)
+    slack = Slack::Incoming::Webhooks.new(@webhook_url)
+    slack.post(text, attachments: @attachments)
   end
 end
 
